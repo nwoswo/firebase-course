@@ -4,6 +4,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import  * as firebase  from 'firebase/app';
 import 'firebase/firestore';
 import { Course } from '../model/course';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 
 
@@ -32,28 +33,52 @@ import { Course } from '../model/course';
 })
 export class AboutComponent implements OnInit {
 
-  constructor() { }
+
+  constructor(private db: AngularFirestore ) { }
 
   ngOnInit() {
+    
+    // this.db.collection('courses').snapshotChanges()
+    this.db.collection('courses').stateChanges()
+      .subscribe( snaps => {
+      const courses : Course[] = snaps.map( snap => {
+        return <Course> {
+          id: snap.payload.doc.id,
+          ...snap.payload.doc.data() as {}
+        }
+      })
 
-    // db.collection('courses').get()
+      console.log(courses);
 
-    //   .then( snaps => {
-      
-    //       //console.log(snaps)
-    //       //console.log('---------------------------')
-    //       const courses : Course[] = snaps.docs.map(  snap => { 
-    //           return <Course> {
-    //             id : snap.id,
-    //             ...snap.data()
-    //           }
-    //       });
-    //       console.log(courses)
-    //       // console.log( snaps.docs.map( snap => snap.data()) );
-        
-    //     }
-    //   );
+    });
 
+    // this.db.collection('courses').valueChanges()
+    //   .subscribe(val => console.log(val) );
+    
   }
+  
+  // constructor() { }
+
+  // ngOnInit() {
+
+  //   // db.collection('courses').get()
+
+  //   //   .then( snaps => {
+      
+  //   //       //console.log(snaps)
+  //   //       //console.log('---------------------------')
+  //   //       const courses : Course[] = snaps.docs.map(  snap => { 
+  //   //           return <Course> {
+  //   //             id : snap.id,
+  //   //             ...snap.data()
+  //   //           }
+  //   //       });
+  //   //       console.log(courses)
+  //   //       // console.log( snaps.docs.map( snap => snap.data()) );
+        
+  //   //     }
+  //   //   );
+
+  // }
 
 }

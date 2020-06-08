@@ -8,17 +8,26 @@
 
         <mat-tab label="Beginners">
 
+            <!-- <courses-card-list
+                    [courses]="courses$ | async">
+                    [courses]="courses$ | async">
+
+            </courses-card-list> -->
+
             <courses-card-list
-                    [courses]="[]">
+                   
+                    [courses]="beninnersCourses$ | async">
 
             </courses-card-list>
+
 
         </mat-tab>
 
         <mat-tab label="Advanced">
 
             <courses-card-list
-                    [courses]="[]"
+                    [courses]="advancedCourses$ | async"
+
 
             ></courses-card-list>
 
@@ -30,3 +39,27 @@
 
 </div>
 
+
+   
+<!-- {{ courses2 }}
+
+
+{{ courses$ }}
+
+<div *ngFor="let product of courses2">
+
+    <h3>
+        {{ product.titles.description }}
+    </h3>
+  
+  </div>
+  
+
+
+  <div *ngFor="let product  of courses$ | async ">
+
+    <h3>
+        {{ product.titles.description }}
+    </h3>
+  
+  </div> -->
