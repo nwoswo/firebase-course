@@ -5,6 +5,7 @@ import  * as firebase  from 'firebase/app';
 import 'firebase/firestore';
 import { Course } from '../model/course';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { async } from '@angular/core/testing';
 
 
 
@@ -36,21 +37,55 @@ export class AboutComponent implements OnInit {
 
   constructor(private db: AngularFirestore ) { }
 
+
+   async runTransaction() {
+     const newCounter = this.db.firestore.runTransaction( async transaction => {
+
+      console.log('running transaction...');
+
+      const courseRef = this.db.doc('/courses/4TH8G6rH1rGGvtQGlTzv').ref;
+
+      const snap = await transaction.get(courseRef);
+
+      const course = <Course> snap.data();
+
+      const lessonsCount = course.lessonsCount + 1;
+
+      transaction.update(courseRef, {lessonsCount});
+
+      return lessonsCount;
+
+     } );
+
+     console.log('result lessons count =', newCounter);
+   }
+
   ngOnInit() {
-    
-    // this.db.collection('courses').snapshotChanges()
-    this.db.collection('courses').stateChanges()
-      .subscribe( snaps => {
-      const courses : Course[] = snaps.map( snap => {
-        return <Course> {
-          id: snap.payload.doc.id,
-          ...snap.payload.doc.data() as {}
-        }
-      })
 
-      console.log(courses);
 
-    });
+    // const courseRef = this.db.doc('/courses/4TH8G6rH1rGGvtQGlTzv').snapshotChanges()
+    //   .subscribe( snap => {
+    //     const course: any = snap.payload.data();
+    //     console.log("course.relatedCourseRef",course.relatedCourseRef);
+
+    //   } );
+
+    // const ref = this.db.doc('courses/0CInyX0vm6AKQ4kra6H8').snapshotChanges()
+    //   .subscribe( doc => console.log('ref',doc.payload.data()) );
+
+    // // this.db.collection('courses').snapshotChanges()
+    // this.db.collection('courses').stateChanges()
+    //   .subscribe( snaps => {
+    //   const courses : Course[] = snaps.map( snap => {
+    //     return <Course> {
+    //       id: snap.payload.doc.id,
+    //       ...snap.payload.doc.data() as {}
+    //     }
+    //   })
+
+    //   console.log(courses);
+
+    // });
 
     // this.db.collection('courses').valueChanges()
     //   .subscribe(val => console.log(val) );
