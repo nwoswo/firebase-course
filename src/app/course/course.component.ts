@@ -36,6 +36,8 @@ export class CourseComponent implements OnInit {
 
   ngOnInit() {
 
+
+    console.log('-----------CourseComponent---------');
     this.course = this.route.snapshot.data['course'];
     this.loading = true;
     this.coursesService.findLessons(this.course.id)

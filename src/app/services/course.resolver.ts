@@ -13,7 +13,7 @@ import { CoursesService } from './courses.service';
 export class CourseResolver implements Resolve<Course> {
 
     constructor(private coursesService: CoursesService) {
-
+        console.log('-----------CourseResolver---------');
     }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Course> {

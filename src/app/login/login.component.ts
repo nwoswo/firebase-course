@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, OnDestroy } from '@angular/core';
 import * as firebaseui from 'firebaseui';
 import * as firebase from 'firebase/app';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -8,11 +10,47 @@ import * as firebase from 'firebase/app';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
-  constructor() { }
+  ui: firebaseui.auth.AuthUI;
 
-  ngOnInit() {
+
+  constructor( private afAuth: AngularFireAuth,
+               private router: Router,
+               private ngZone: NgZone ) {
+
+    
+   }
+   ngOnDestroy() {
+    this.ui.delete();
+}
+
+ ngOnInit() {
+ 
+    const uiConfig = {
+      signInOptions: [
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.EmailAuthProvider.PROVIDER_ID
+      ],
+      callbacks: {
+ 
+        signInSuccessWithAuthResult: this
+        .onLoginSuccessful
+        .bind(this)
+      }
+    };
+ 
+    this.ui = new firebaseui.auth.AuthUI(this.afAuth.auth);
+    this.ui.start('#firebaseui-auth-container', uiConfig);
   }
+ 
+  onLoginSuccessful(result) {
+
+    console.log('Firebase UI result: ',result);
+    this.ngZone.run( () =>   this.router.navigateByUrl('/courses'));
+   
+ 
+  }
+
 
 }
