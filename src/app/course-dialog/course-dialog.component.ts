@@ -3,6 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import {Course} from "../model/course";
 import {FormBuilder, Validators, FormGroup} from "@angular/forms";
 import { CoursesService } from '../services/courses.service';
+import { AngularFireStorage } from '@angular/fire/storage';
+import { Observable } from 'rxjs';
+import { last, concatMap } from 'rxjs/operators';
 
 
 @Component({
@@ -13,14 +16,20 @@ import { CoursesService } from '../services/courses.service';
 export class CourseDialogComponent implements OnInit {
 
     form: FormGroup;
-    description:string;
+    description: string;
     course: Course;
+
+    uploadPercent$: Observable<number>;
+    donloadUrl$: Observable<string>;
 
     constructor(
         private fb: FormBuilder,
         private dialogRef: MatDialogRef<CourseDialogComponent>,
         @Inject(MAT_DIALOG_DATA) course:Course,
-        private coursesService: CoursesService) {
+        private coursesService: CoursesService,
+        private storage: AngularFireStorage) {
+
+        
 
         this.course = course;
         const titles = course.titles;
@@ -33,6 +42,38 @@ export class CourseDialogComponent implements OnInit {
     }
 
     ngOnInit() {
+
+    }
+
+    uploadFile(event){
+        const file = event.target.files[0];
+
+        const filePath = `courses/${this.course.id}/${file.name}`;
+        const task = this.storage.upload(filePath, file);
+
+        
+
+        this.uploadPercent$ = task.percentageChanges();
+
+        this.storage.ref(filePath).getDownloadURL();
+
+        this.donloadUrl$ = task.snapshotChanges().pipe(
+            last(),
+            concatMap( () => this.storage.ref(filePath).getDownloadURL() )
+        );
+        // .subscribe( console.log);
+
+        const saveUrl$ =  this.donloadUrl$
+            .pipe(
+                concatMap( url => this.coursesService
+                    .saveCourse( this.course.id,{uploadedImageUrl: url} ) )
+            );
+
+        
+
+        this.donloadUrl$.subscribe(console.log);
+
+        saveUrl$.subscribe(console.log);
 
     }
 
